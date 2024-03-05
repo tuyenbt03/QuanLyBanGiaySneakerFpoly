@@ -1,0 +1,234 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package repository;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import model.Size;
+import utilitys.DBConnection;
+/**
+ *
+ * @author PC
+ */
+public class SizeRepo {
+     public List<Size> getAllSizeConHoatDong() {
+        String query = """
+                       SELECT [Id]
+                               ,[Ma]
+                               ,[Ten]
+                               ,[NgayTao]
+                               ,[NgaySua]
+                               ,[TrangThai]
+                           FROM [dbo].[Size]
+                       where TrangThai = 1
+
+                       """;
+        try (Connection con = DBConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            List<Size> lists = new ArrayList<>();
+            while (rs.next()) {
+                Size cl = new Size(rs.getString(1), rs.getString(2), rs.getString(3), rs.getDate(4), rs.getDate(5), rs.getInt(6));
+                lists.add(cl);
+            }
+            return lists;
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+        return null;
+    }
+     
+     String sql = "select * from size where id = ?";
+    Size size = new Size();
+
+    public Size getSizeById(String id) {
+        try {
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ptsm = con.prepareStatement(sql);
+            ptsm.setString(1, id);
+            ResultSet rs = ptsm.executeQuery();
+            while (rs.next()) {
+                size.setId(rs.getString(1));
+                size.setMaSize(rs.getString(2));
+                size.setTenSize(rs.getString(3));
+                size.setNgayTao(rs.getDate(4));
+                size.setNgaySua(rs.getDate(5));
+                size.setTrangThai(rs.getInt(6));
+            }
+        } catch (Exception e) {
+            System.out.println("" + e);
+        }
+        return size;
+    }
+     
+        public List<Size> getAllSizeNgungHoatDong() {
+        String query = """
+                       SELECT [Id]
+                               ,[Ma]
+                               ,[Ten]
+                               ,[NgayTao]
+                               ,[NgaySua]
+                               ,[TrangThai]
+                           FROM [dbo].[Size]
+                       where TrangThai = 0
+
+                       """;
+        try (Connection con = DBConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            List<Size> lists = new ArrayList<>();
+            while (rs.next()) {
+                Size cl = new Size(rs.getString(1), rs.getString(2), rs.getString(3), rs.getDate(4), rs.getDate(5), rs.getInt(6));
+                lists.add(cl);
+            }
+            return lists;
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+        return null;
+    }
+    
+    public List<String> getListMa() {
+        String query = """
+                       SELECT [Ma]
+                         FROM [dbo].[Size]
+                       ORDER BY [Ma]
+                       """;
+        try (Connection con = DBConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            List<String> lists = new ArrayList<>();
+            while (rs.next()) {
+                String ma = rs.getString(1);
+                lists.add(ma);
+            }
+            return lists;
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+        return null;
+    }
+    
+    public List<String> getListTen() {
+        String query = """
+                       SELECT [Ten]
+                         FROM [dbo].[Size]
+                       ORDER BY [Ma]
+                       """;
+        try (Connection con = DBConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement(query)) {
+            ResultSet rs = ps.executeQuery();
+            List<String> lists = new ArrayList<>();
+            while (rs.next()) {
+                String ten = rs.getString(1);
+                lists.add(ten);
+            }
+            return lists;
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+        return null;
+    }
+    
+    public boolean insert(Size cl) {
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = " INSERT INTO Size(Id, Ma, Ten, NgayTao, NgaySua, TrangThai) VALUES (?,?,?,getDate(),null,?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setObject(1, cl.getId());
+            ps.setObject(2, cl.getMaSize());
+            ps.setObject(3, cl.getTenSize());
+            
+            ps.setObject(4, cl.getTrangThai());
+            ps.execute();
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean update(Size sp) {
+        int check = 0;
+        try {
+            Connection conn = DBConnection.getConnection();
+            String sql = "UPDATE Size SET Ten = ?, NgaySua = getDate(),TrangThai = ? WHERE Ma = ? ";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setObject(1, sp.getTenSize());
+            ps.setObject(2, sp.getTrangThai());
+            ps.setObject(3, sp.getMaSize());
+            check = ps.executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public boolean delete(String id){
+      try {
+          Connection conn = DBConnection.getConnection();
+          String sql = " DELETE FROM Size WHERE Ma = ?";
+          PreparedStatement ps = conn.prepareStatement(sql);
+          ps.setString(1, id);
+          ps.execute();
+          return true;
+      } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+      }
+  }
+    
+    public List<Size> TimKiem(String tenCL) {
+        String query = """
+                       SELECT [Id]
+                               ,[Ma]
+                               ,[Ten]
+                               ,[NgayTao]
+                               ,[NgaySua]
+                               ,[TrangThai]
+                           FROM [dbo].[Size]
+                         WHERE [Ten] like CONCAT('%',?,'%')
+                        OR [ma] LIKE CONCAT('%',?,'%')
+                       """;
+        try (Connection con = DBConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement(query)) {
+            ps.setObject(1, tenCL);
+            ps.setObject(2, tenCL);
+            ResultSet rs = ps.executeQuery();
+            List<Size> lists = new ArrayList<>();
+            while (rs.next()) {
+                Size pt = new Size(rs.getString(1), rs.getString(2), rs.getString(3), rs.getDate(4), rs.getDate(5), rs.getInt(6));
+                lists.add(pt);
+            }
+            return lists;
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+        return null;
+    }
+     public void updateTrangThaiSize(String id){
+        try {
+            String sql = "UPDATE size\n"
+                + "SET trangthai = CASE\n"
+                + "    WHEN trangThai = 0 THEN 1\n"
+                + "    WHEN trangThai = 1 THEN 0\n"
+                + "    ELSE trangThai\n"
+                + "END\n"
+                + "WHERE id like ? ";
+            Connection con = DBConnection.getConnection();
+            PreparedStatement ptsm = con.prepareStatement(sql);
+            ptsm.setString(1, id);
+            ptsm.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(""+e);
+        }
+    }
+}
